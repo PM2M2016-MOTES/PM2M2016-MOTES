@@ -1,0 +1,44 @@
+rabbitmq:
+  image: rabbitmq:3-management
+  ports:
+    - "5672:5672"
+    - "15672:15672"
+  volumes:
+    - /var/lib/docker/rabbitmq:/data/mnesia
+
+mongodb:
+  build: ./build/mongodb
+  volumes:
+    - /var/lib/docker/mongo/mongodb:/data/db
+  command: mongod --smallfiles
+  ports:
+    - "27017:27017"
+
+mosquitto:
+  image: ansi/mosquitto
+  ports:
+    - "1883:1883"
+
+croft:
+  build: ./../croft
+  env_file: ./../croft/.local
+  restart: always
+  ports:
+    - "1700:1700/udp"
+  links:
+    - rabbitmq
+
+jolie:
+  build: ./../jolie
+  env_file: ./../jolie/.local
+  links:
+    - rabbitmq
+    - mongodb
+    - mosquitto
+
+nodered:
+  image: cpswan/node-red
+  volumes:
+    - /var/lib/docker/node-red/:/root/.node-red/
+  ports:
+    - "1880:1880"
