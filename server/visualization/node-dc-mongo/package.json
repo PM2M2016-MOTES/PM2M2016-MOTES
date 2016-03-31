@@ -1,7 +1,7 @@
 {
-  "name": "starter-node-angular",
+  "name": "motes-server-visualization",
   "main": "server.js",
-  "version": "1.0.1",
+  "version": "0.1.0",
   "dependencies": {
     "express": "~4.5.1",
     "mongoose": "~3.8.0",

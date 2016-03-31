@@ -735,15 +735,4 @@ ul.style3 .first {
 	{
 		padding: 5em 0em;
 		background: #FFF
-	}	
-
-/* USER DEFINED TABLE */
-.table > thead > tr > th,
-.table > tbody > tr > th,
-.table > tfoot > tr > th,
-.table > thead > tr > td,
-.table > tbody > tr > td,
-.table > tfoor > tr > td
-{
-    padding: 4px;
-}
+	}

@@ -1,0 +1,36 @@
+/* Add here your own defined CSS */
+#total-projects {
+    background: #33CC99;
+    width: 200px;
+    position:relative;
+    height:60px;
+    font-size: 29px;
+    color: white;
+    vertical-align: middle;
+    text-align: center;
+    padding-top: 12px;
+    padding-bottom: 0px;
+}
+
+#net-donations, #average-heat {
+    background: #33CC99;
+    width: 200px;
+    position:relative;
+    height:60px;
+    font-size: 29px;
+    color: white;
+    vertical-align: middle;
+    text-align: center;
+    padding-top: 12px;
+    padding-bottom: 0px;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoor > tr > td
+{
+    padding: 4px;
+}
