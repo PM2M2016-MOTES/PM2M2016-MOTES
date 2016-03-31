@@ -32,4 +32,5 @@ motes/bin/serialcom
 motes/obj
 server/croft/croft
 server/jolie/jolie
-server/visualization/node-dc-mongo/node_modules
+server/visualization/node_modules
+*~
