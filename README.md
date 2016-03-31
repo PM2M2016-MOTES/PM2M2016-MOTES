@@ -7,5 +7,3 @@ https://github.com/TheThingsNetwork/croft
 https://github.com/TheThingsNetwork/server-devenv
 	for the server part
 
-https://github.com/anmolkoul/node-dc-mongo
-	for the visualization
