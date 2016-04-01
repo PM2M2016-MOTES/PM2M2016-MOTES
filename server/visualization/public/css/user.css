@@ -1,5 +1,5 @@
 /* Add here your own defined CSS */
-body, #header, #page{
+body, #titlebar, #header, #page{
     background: none;
     background-color: #222222;
     color: #FFFFFF;
