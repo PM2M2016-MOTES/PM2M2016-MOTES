@@ -25,57 +25,17 @@ function makeGraphs(error, apiData) {
     var projectsByDate = datePosted.group(); 
     var all = ndx.groupAll();
 
-    //Calculate Groups
+    var netTotalDonations = ndx.groupAll().reduceSum(function(d) {return d.total_donations;});
 
-    //	var totalHeat = ndx.groupAll().reduceSum(function(d) {return d.total_donations;});
-    /*
-      var totalDonationsState = state.group().reduceSum(function(d) {
-      return d.total_donations;
-      });
-
-      var totalDonationsGrade = gradeLevel.group().reduceSum(function(d) {
-      return d.grade_level;
-      });
-
-      var totalDonationsFundingStatus = fundingStatus.group().reduceSum(function(d) {
-      return d.funding_status;
-      });
-
-*/
-      var netTotalDonations = ndx.groupAll().reduceSum(function(d) {return d.total_donations;});
-    /*
-    var netTotalDonations = datePosted.group().reduce(reduceAddVal, reduceDeleteVal, initialValue);
-    */
     //Define threshold values for data
     var minDate = datePosted.bottom(1)[0].date_posted;
     var maxDate = datePosted.top(1)[0].date_posted;
-
-    /*
-    function reduceAddVal(p, v){
-	p.count++;
-	p.total += v.total_donations;
-	p.average = p.total / p.count;
-	return p;
-    }
-    function reduceDeleteVal(p, v){
-	p.count--;
-	p.total -= v.total_donations;
-	p.average = p.total / p.count;
-	return p;
-    }
-    function initialValue(){
-	return {
-	    count:0,
-	    total:0,
-	    average:0
-	};
-    }
-*/
 
     //Charts
     var dateChart = dc.lineChart("#date-chart");
     var averageHeat = dc.numberDisplay("#average-heat");
     var dataTable = dc.dataTable("#data-table");
+    var dataTableSize = dc.numberDisplay("#nb-recordings");
 
     dc.dataCount("#row-selection")
         .dimension(ndx)
@@ -94,7 +54,13 @@ function makeGraphs(error, apiData) {
 	.formatNumber(d3.format(".2f"))
 	.group(all)
 	.valueAccessor(function(d){
-	    return totalProjects.value() === 0 ? 0 : netDonations.value() < 0 ? 0 : netDonations.value() / totalProjects.value();
+	    var a = netDonations.value();
+	    var b = totalProjects.value();
+	    if(b === 0)
+		return 0;
+	    if(a < 0)
+		return 0;
+	    return a / b;
 	});
 
     dateChart
@@ -115,12 +81,16 @@ function makeGraphs(error, apiData) {
 	.dimension(datePosted)
 	.group(function(d){return "";})
 	.size(500)
+	.order(d3.descending)
 	.columns([
-	    function(d){return d.id;},
-	    function(p){return p.count;},
 	    function(d){return d.date_posted;},
 	    function(d){return d.total_donations;},
 	])
+
+    dataTableSize
+	.formatNumber(d3.format("d"))
+	.valueAccessor(function(d){return (function (a, b){return a < b ? a : b;}(totalProjects.value(), dataTable.size()));})
+	.group(all);
     
     /* Draw the graphs */
     dc.renderAll();
