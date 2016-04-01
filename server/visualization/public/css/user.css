@@ -1,19 +1,35 @@
 /* Add here your own defined CSS */
+#page, #header{
+    background: none;
+    background-color: #222222;
+    color: #FFFFFF;
+}
+
+#logo h1 a{
+    background-color: #222222;
+    color: #FFFFFF;
+}
+
+#logo h1 a:hover{
+    background-color: #222222;
+    color: #FFFFFF;
+    cursor: default;
+}
+
 #total-projects, #net-donations {
     display: none;
 }
 
 #average-heat {
-    background: #33CC99;
     width: 200px;
     position:relative;
     height:60px;
     font-size: 29px;
-    color: white;
     vertical-align: middle;
     text-align: center;
     margin-top: 20px;
     margin-left: 100px;
+    background-color: #222222;
 }
 
 #row-selection{
@@ -34,4 +50,33 @@
 .table > tfoor > tr > td
 {
     padding: 4px;
+}
+
+.dc-table-group{
+    display: none;
+}
+
+.table-bordered{
+    1px solid #464545;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #555555;
+}
+
+a:hover, .table-hover > tbody > tr:hover {
+    background-color: #f5f5f5;
+    color: #000000;
+}
+
+a, .dc-data-count .filter-count, .dc-data-count .total-count{
+    color: #FFFFFF;
+}
+
+strong{
+    color: #FFFFFF;
+}
+
+.chart-title.bold strong{
+    color: #2A2A2A;
 }

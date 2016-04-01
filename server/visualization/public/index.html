@@ -53,17 +53,17 @@
 	    <div class="4u dc-data-count dc-chart" id="row-selection">
 	      <span class="filter-count">_</span> selected out of <span class="total-count">_</span> records |
 	      <span>
-		<a href='javascript:dc.filterAll();dc.redrawAll();'><font color="#33CC99">Reset All</font></a>
+		<a href='javascript:dc.filterAll();dc.redrawAll();'>Reset All</a>
 	      </span>
 	    </div>
 	    <div class="2u chart-wrapper" id="average-heat">
-	      <div class="chart-title"><strong> Average T° </strong></div>
+	      <div class="chart-title" id="temperature-display"><strong> Average T° </strong></div>
 	    </div>
 	  </div>
 	  
 	  <div>
 	    <div class="nb-recordings">
-	      Last <span id="nb-recordings"></span> recordings.
+	      Last <strong><span id="nb-recordings"></span></strong> recordings.
 	    </div>
 	    <div>
 	      <table class="table table-hover table-bordered table-striped" id="data-table">
