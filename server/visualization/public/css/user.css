@@ -12,8 +12,18 @@
     color: white;
     vertical-align: middle;
     text-align: center;
+    margin-top: 20px;
+    margin-left: 100px;
+}
+
+#row-selection{
+    float: right;
     padding-top: 12px;
-    padding-bottom: 0px;
+}
+
+.nb-recordings{
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 .table > thead > tr > th,
