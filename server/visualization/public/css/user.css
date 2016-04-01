@@ -1,8 +1,12 @@
 /* Add here your own defined CSS */
-#page, #header{
+body, #header, #page{
     background: none;
     background-color: #222222;
     color: #FFFFFF;
+}
+
+#page .container{
+    margin-top: 20px;
 }
 
 #logo h1 a{
@@ -56,6 +60,10 @@
     display: none;
 }
 
+a, .dc-data-count .filter-count, .dc-data-count .total-count{
+    color: #FFFFFF;
+}
+
 .table-bordered{
     1px solid #464545;
 }
@@ -67,10 +75,7 @@
 a:hover, .table-hover > tbody > tr:hover {
     background-color: #f5f5f5;
     color: #000000;
-}
-
-a, .dc-data-count .filter-count, .dc-data-count .total-count{
-    color: #FFFFFF;
+    text-decoration: none;
 }
 
 strong{
