@@ -8,28 +8,30 @@ function makeGraphs(error, apiData) {
     var dataSet = apiData;
     var dateFormat = d3.time.format("%m/%d/%Y");
     dataSet.forEach(function(d) {
-	d.date_posted = dateFormat.parse(d.date_posted);
-	d.date_posted.setDate(1);
-	d.total_donations = +d.total_donations;
+	console.log(d.date);
+	d.date = dateFormat.parse(d.date);
+	d.date.setDate(1);
+	console.log(d.date);
+	d.temperature = +d.temperature;
     });
 
     //Create a Crossfilter instance
     var ndx = crossfilter(dataSet);
 
     //Define Dimensions
-    var datePosted = ndx.dimension(function(d) { return d.date_posted; });
-    var totalDonations  = ndx.dimension(function(d) { return d.total_donations; });
+    var datePosted = ndx.dimension(function(d) { return d.date; });
+    var totalDonations  = ndx.dimension(function(d) { return d.temperature; });
 
 
     //Calculate metrics
     var projectsByDate = datePosted.group(); 
     var all = ndx.groupAll();
 
-    var netTotalDonations = ndx.groupAll().reduceSum(function(d) {return d.total_donations;});
+    var netTotalDonations = ndx.groupAll().reduceSum(function(d) {return d.temperature;});
 
     //Define threshold values for data
-    var minDate = datePosted.bottom(1)[0].date_posted;
-    var maxDate = datePosted.top(1)[0].date_posted;
+    var minDate = datePosted.bottom(1)[0].date;
+    var maxDate = datePosted.top(1)[0].date;
 
     //Charts
     var dateChart = dc.lineChart("#date-chart");
@@ -83,8 +85,8 @@ function makeGraphs(error, apiData) {
 	.size(500)
 	.order(d3.descending)
 	.columns([
-	    function(d){return d.date_posted;},
-	    function(d){return d.total_donations;},
+	    function(d){return d.date;},
+	    function(d){return d.temperature;},
 	])
 
     dataTableSize
