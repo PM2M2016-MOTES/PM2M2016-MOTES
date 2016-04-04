@@ -12,7 +12,7 @@ var port = process.env.PORT || 8080; // set our port
 var db = require('./config/db');
 
 // connect to our mongoDB database (commented out after you enter in your own credentials)
-connectionsubject = mongoose.createConnection(db.urlSubjectViews);
+connection = mongoose.createConnection(db.urlViews);
 
 
 
