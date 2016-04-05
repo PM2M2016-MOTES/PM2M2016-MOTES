@@ -7,10 +7,13 @@
 #include <sys/wait.h>
 
 typedef enum{false = 0, true = 1} bool;
+struct conf{
+  int cpu;
+  int seconds;
+};
 
 #define BUFFER_LENGTH 1024
 
-int son_pid = -1;
 bool verbose;
 
 /**
@@ -18,10 +21,11 @@ bool verbose;
  * Also, the function creates (at least tries) the file .sensor.conf, 
  *   for the future execution of the process. 
  */
-int get_number_of_cpu_from_hardware(){
+struct conf get_number_of_cpu_from_hardware(bool delay_bool, int delay){
   int nb_cpu = 0;
   FILE *f;
   char buffer[BUFFER_LENGTH];
+  struct conf c;
 
   if((f = fopen("/proc/cpuinfo", "r")) == NULL){
     perror("An error occured while opening /proc/cpuinfo");
@@ -36,18 +40,22 @@ int get_number_of_cpu_from_hardware(){
   }
   fclose(f);
   
-  fprintf(stdout, "%d processors detected\n", nb_cpu); 
+  fprintf(stdout, "%d processors detected\n", nb_cpu);
+  c.cpu = nb_cpu;
+  c.seconds = (delay_bool) ? delay : 10;
+  
   if((f = fopen(".sensor.conf", "w")) == NULL){
     perror("An error occured while opening .sensor.conf");
     fprintf(stderr, "Cannot create conf file, will retry next time\n");
   }
   else{
-    fprintf(f, "processors : %d", nb_cpu);
+    fprintf(f, "processors : %d\n", c.cpu);
+    fprintf(f, "number-of-seconds-between-measures : %d\n", c.seconds);
     fclose(f);
     fprintf(stdout, ".sensor.conf created\n");
   }
   
-  return nb_cpu;
+  return c;
 }
 
 /**
@@ -55,13 +63,18 @@ int get_number_of_cpu_from_hardware(){
  *
  * The .sensor.conf file is closed at the end of this function.
  */
-int get_number_of_cpu_from_file(FILE *f){
-  int ret = 0;
+struct conf get_number_of_cpu_from_file(bool delay_bool, int delay, FILE *f){
+  int cpu = 0, seconds = 0;
+  struct conf c;
 
-  fscanf(f, "processors : %d", &ret);
+  fscanf(f, "processors : %d\n", &cpu);
+  fscanf(f, "number-of-seconds-between-measures : %d\n", &seconds);
   fclose(f);
   fprintf(stdout, "Done\n");
-  return ret;
+
+  c.cpu = cpu;
+  c.seconds = (delay_bool) ? delay : seconds;
+  return c;
 }
 
 /**
@@ -72,7 +85,7 @@ int get_number_of_cpu_from_file(FILE *f){
  * or it creates this .sensor.conf file using /proc/cpuinfo to get the number 
  * of CPUs.
  */
-int get_number_of_cpu(){
+struct conf get_number_of_cpu(bool delay_bool, int delay){
   FILE *f;
 
   fprintf(stdout, "Trying to recover data from .sensor.conf ... ");
@@ -80,7 +93,7 @@ int get_number_of_cpu(){
   f = fopen(".sensor.conf", "r");
   if(errno == ENOENT){
     fprintf(stdout, "\n.sensor.conf does not exist. Trying to get data from hardware ...\n");
-    return get_number_of_cpu_from_hardware();
+    return get_number_of_cpu_from_hardware(delay_bool, delay);
   }
   else if(f == NULL){
     printf("%d", errno);
@@ -88,7 +101,7 @@ int get_number_of_cpu(){
     exit(EXIT_FAILURE);
   }
   else{
-    return get_number_of_cpu_from_file(f);
+    return get_number_of_cpu_from_file(delay_bool, delay, f);
   }
 }
 
@@ -97,7 +110,7 @@ void send_out(int average_temperature){
   char command[BUFFER_LENGTH];
 
   sprintf(command, "'AT+SEND {\"date\":%ld,\"temperature\":%d}'\n", time(NULL), average_temperature);
-  son_pid = pid = fork();
+  pid = fork();
   if(pid < 0){
     perror("An error occured while creating the communication process");
     return;
@@ -108,18 +121,17 @@ void send_out(int average_temperature){
   }
   else{
     /* Wait until the end of the process communication */
-    while((pid = waitpid(son_pid, NULL, WUNTRACED|WCONTINUED)) != -1){
+    while((pid = waitpid(-1, NULL, WUNTRACED|WCONTINUED)) != -1){
       ;
     }
   }
   
   printf("./serialcom -c %s", command);
-  son_pid = -1;
 }
 
-void process_one_temperature(int nb_cpu){
-  int second_between_measure = 10;
-  int nb_measures = 60/second_between_measure;
+ void process_one_temperature(int nb_cpu, int nb_seconds){
+  int second_between_measure = nb_seconds;
+  int nb_measures = (second_between_measure == 0) ? 1 : 60/second_between_measure;
   int limit, i;
   unsigned int raw_heat;
   double total_temperatures = 0;
@@ -148,59 +160,66 @@ void process_one_temperature(int nb_cpu){
   send_out((int)(total_temperatures / (i*limit)));
 }
 
-void process_temperature(int nb_cpu){
-  int toto = 10;
-
-  while(toto >= 0){
-    process_one_temperature(nb_cpu);
-    toto--;
+void process_temperature(int nb_cpu, int nb_seconds){
+  while(true){
+    process_one_temperature(nb_cpu, nb_seconds);
   }
 }
 
 int main(int argc, char **argv){
-  FILE **f;
-  int i, j, nb_cpu;
-  char buffer[BUFFER_LENGTH];
+  struct conf c;
+  int nb_cpu, nb_seconds;
+  bool delay_bool = false, verbose = false;
+  int opt, delay = -1;
 
-  nb_cpu = get_number_of_cpu();
+  while((opt = getopt(argc, argv, "d:v")) != -1){
+    switch(opt){
+    case 'd':
+      delay_bool = true;
+      delay = strtol(optarg, NULL, 10);
+      break;
+    case 'v':
+      verbose = true;
+      break;
+    default:
+      fprintf(stderr, "Unknown option : [%c] : %s\n", opt, optarg);
+      return(EXIT_FAILURE);
+    }
+  }
+
+  /* Redirecting output in quiet mode */
+  if(verbose == false){
+    if(freopen("/dev/null", "w", stdout) == NULL){
+      perror("Cannot set quiet mode");
+      fprintf(stderr, "Please retry in verbose mode (option -v)\n");
+      return(EXIT_FAILURE);
+    }
+    /* Let's keep a trace of the possible errors */
+    if(freopen("./sensor.error", "w", stderr) == NULL){
+      perror("Cannot set quiet mode");
+      fprintf(stderr, "Please retry in verbose mode (option -v)\n");
+      return(EXIT_FAILURE);
+    }
+  }
+  
+  c = get_number_of_cpu(delay_bool, delay);
+
+  nb_cpu = c.cpu;
+  nb_seconds = c.seconds;
 
   printf("number of cpu : %d\n", nb_cpu);
+  printf("number of seconds : %d\n", nb_seconds);
   if(nb_cpu <= 0){
     fprintf(stderr, "It seems your PC doesn't have any processors ...\n");
     fprintf(stderr, "There's nothing I can do, sorry :(\n");
     exit(EXIT_FAILURE);
   }
-
-  /*
-  if((f = (FILE**)malloc(nb_cpu * (sizeof(FILE *)))) == NULL){
-    sprintf(buffer, "Unable to allocate %d cpus\n", nb_cpu);
-    perror(buffer);
+  if(nb_seconds < 0 || nb_seconds > 60){
+    fprintf(stderr, "The number of seconds between each measure MUST be between 0 and 60 seconds\n");
     exit(EXIT_FAILURE);
   }
-
-  for(i = 0; i < nb_cpu; i++){
-    sprintf(buffer, "/sys/class/thermal/thermal_zone%d/temp", i); 
-    if((f[i]=fopen(buffer, "r")) == NULL){
-      fprintf(stderr, "Unable to open ");
-      perror(buffer);
-      for(j = 0; j < i; j++){
-	fclose(f[j]);
-      }
-      free(f);
-      exit(EXIT_FAILURE);
-    }
-  }
-  */
-
-  process_temperature(nb_cpu);
-
-  /*
-  for(i = 0; i < nb_cpu; i++){
-    fclose(f[i]);
-  }
   
-  free(f);
-  */
+  process_temperature(nb_cpu, nb_seconds);
   
   return EXIT_SUCCESS;
 }
