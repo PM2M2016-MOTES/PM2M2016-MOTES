@@ -18,8 +18,8 @@ bool verbose;
 
 /**
  * Get the number of CPU by reading /proc/cpuinfo.
- * Also, the function creates (at least tries) the file .sensor.conf, 
- *   for the future execution of the process. 
+ * Also, the function creates (at least tries) the file .sensor.conf,
+ *   for the future execution of the process.
  */
 struct conf get_number_of_cpu_from_hardware(bool delay_bool, int delay){
   int nb_cpu = 0;
@@ -31,7 +31,7 @@ struct conf get_number_of_cpu_from_hardware(bool delay_bool, int delay){
     perror("An error occured while opening /proc/cpuinfo");
     exit(EXIT_FAILURE);
   }
-  
+
   while(feof(f) == 0){
     fgets(buffer, BUFFER_LENGTH, f);
     if(strncmp("processor", buffer, (size_t)(9 * sizeof(char))) == 0){
@@ -39,11 +39,11 @@ struct conf get_number_of_cpu_from_hardware(bool delay_bool, int delay){
     }
   }
   fclose(f);
-  
+
   fprintf(stdout, "%d processors detected\n", nb_cpu);
   c.cpu = nb_cpu;
   c.seconds = (delay_bool) ? delay : 10;
-  
+
   if((f = fopen(".sensor.conf", "w")) == NULL){
     perror("An error occured while opening .sensor.conf");
     fprintf(stderr, "Cannot create conf file, will retry next time\n");
@@ -54,7 +54,7 @@ struct conf get_number_of_cpu_from_hardware(bool delay_bool, int delay){
     fclose(f);
     fprintf(stdout, ".sensor.conf created\n");
   }
-  
+
   return c;
 }
 
@@ -79,10 +79,10 @@ struct conf get_number_of_cpu_from_file(bool delay_bool, int delay, FILE *f){
 
 /**
  * Return the number of CPUs.
- * 
- * The function reads it from the file .sensor.conf created from a previous 
+ *
+ * The function reads it from the file .sensor.conf created from a previous
  * run of the process (the number of CPUs is unlikely to change between two runs ...)
- * or it creates this .sensor.conf file using /proc/cpuinfo to get the number 
+ * or it creates this .sensor.conf file using /proc/cpuinfo to get the number
  * of CPUs.
  */
 struct conf get_number_of_cpu(bool delay_bool, int delay){
@@ -109,7 +109,7 @@ void send_out(int average_temperature){
   int pid;
   char command[BUFFER_LENGTH];
 
-  sprintf(command, "'AT+SEND {\"date\":%ld,\"temperature\":%d}'\n", time(NULL), average_temperature);
+  sprintf(command, "AT+SEND={date:%ld,temperature:%d}\n", time(NULL), average_temperature);
   pid = fork();
   if(pid < 0){
     perror("An error occured while creating the communication process");
@@ -125,7 +125,7 @@ void send_out(int average_temperature){
       ;
     }
   }
-  
+
   printf("./serialcom -c %s", command);
 }
 
@@ -137,9 +137,9 @@ void send_out(int average_temperature){
   double total_temperatures = 0;
   FILE *f;
   char path[BUFFER_LENGTH];
-  
+
   for(limit = 0; limit < nb_measures; limit++){
-    for(i = 0; i < nb_cpu; i++){
+    for(i = 0; i < 2; i++){
       sprintf(path, "/sys/class/thermal/thermal_zone%d/temp", i);
       /* We re-open all the file descriptor at each loop since it seems the temperature
 	 is cached otherwise */
@@ -201,7 +201,7 @@ int main(int argc, char **argv){
       return(EXIT_FAILURE);
     }
   }
-  
+
   c = get_number_of_cpu(delay_bool, delay);
 
   nb_cpu = c.cpu;
@@ -218,8 +218,8 @@ int main(int argc, char **argv){
     fprintf(stderr, "The number of seconds between each measure MUST be between 0 and 60 seconds\n");
     exit(EXIT_FAILURE);
   }
-  
+
   process_temperature(nb_cpu, nb_seconds);
-  
+
   return EXIT_SUCCESS;
 }
