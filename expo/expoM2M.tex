@@ -74,7 +74,7 @@
 \subsection{Projet}
 \begin{frame}
   	\begin{block}{Principe}
-  		Utiliser des émetteurs LoRa pur communiquer avec une gateway qui stockerait les informations sur un serveur où l'on pourrait les analyser.
+  		Utiliser des émetteurs LoRa pour communiquer avec une gateway qui stockerait les informations sur un serveur où l'on pourrait les analyser.
 	\end{block}
 	
 	\begin{exampleblock}{Matériel}
@@ -91,13 +91,35 @@
 	\begin{block}{Description}
 		LoRa permet la communication par radio à bas débit entre des objets.
 		LoRaWan est une extension de LoRa.
+		\center
+		\includegraphics[scale=0.5]{LoRa-network.png}
 	\end{block}
 \end{frame}
 
 \section{Client}
 \begin{frame}
-	\begin{block}{Architecture}
-		\includegraphics[scale=0.6]{LoRa-network.png}
+	\begin{block}{Programmes Motes}
+		\begin{itemize}
+			\item serialcom
+				\begin{itemize}
+					\item Permet d'envoyer des commandes au Motes(Une ou plusieurs commandes)
+				\end{itemize}
+			\item sensor
+				\begin{itemize}
+					\item Récupère et envoie périodiquement la moyenne de la température CPU sur le réseau LoRawan
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\begin{block}{Programmes Gateway}
+		\begin{itemize}
+			\item packet\_forwarder
+			\begin{itemize}
+				\item Ecoute sur certaines fréquences et transfert à un serveur les messages reçus
+			\end{itemize}
+		\end{itemize}
 	\end{block}
 \end{frame}
 
@@ -114,12 +136,6 @@
 			\item Documentation des Motes Wyres pas à jour
 			\item Impossibilité de déchiffrer les données à la réception
 		\end{itemize}
-	\end{block}
-\end{frame}
-
-\begin{frame}
-	\begin{block}{blabla}
-		
 	\end{block}
 \end{frame}
 \end{document}
