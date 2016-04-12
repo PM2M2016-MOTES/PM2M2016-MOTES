@@ -25,6 +25,7 @@ func ConnectRabbitPublisher() (Publisher, error) {
 	var err error
 	for i := 0; i < RABBIT_ATTEMPTS; i++ {
 		uri := os.Getenv("AMQP_URI")
+		log.Printf("URI : %s", uri)
 		conn, err := amqp.Dial(uri)
 		if err != nil {
 			log.Printf("Failed to connect: %s", err.Error())

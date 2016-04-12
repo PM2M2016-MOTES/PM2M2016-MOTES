@@ -20,7 +20,7 @@ body, #titlebar, #header, #page{
     cursor: default;
 }
 
-#total-projects, #net-donations {
+#total-temperature, #nb-temperature {
     display: none;
 }
 
