@@ -116,7 +116,11 @@ func convertRXPK(gatewayEui []byte, rxpk *lora.RXPK) (*shared.RxPacket, error) {
 			return nil, err
 		}
 	}
+<<<<<<< HEAD
 	log.Printf("Key = %X", key)
+=======
+	log.Printf("Key = %s", key)
+>>>>>>> 4d9689344ad025c693150e920e11580f50b5d353
 
 	ok, err := data.TestIntegrity(networkKey)
 	if err != nil {
@@ -127,14 +131,20 @@ func convertRXPK(gatewayEui []byte, rxpk *lora.RXPK) (*shared.RxPacket, error) {
 		return nil, errors.New("Integrity test failed")
 	}
 
+<<<<<<< HEAD
 	log.Printf("Je vais dechiffrer")
+=======
+>>>>>>> 4d9689344ad025c693150e920e11580f50b5d353
 	payload, err := data.DecryptPayload(key)
 	if err != nil {
 		log.Printf("Error decrypting data: %s", err.Error())
 		return nil, err
 	}
+<<<<<<< HEAD
 	log.Printf("Si j ai fait mon boulot les donnees sont visible")
 	log.Printf("%X",payload)
+=======
+>>>>>>> 4d9689344ad025c693150e920e11580f50b5d353
 
 	return &shared.RxPacket{
 		GatewayEui: fmt.Sprintf("%X", gatewayEui),
@@ -164,6 +174,10 @@ func getNetworkKey(gatewayEui []byte, devAddr uint32) ([]byte, error) {
 func getAppKey(gatewayEui []byte, devAddr uint32) ([]byte, error) {
 	// TODO: Implement fetching the right application key
 	//return getNetworkKey(gatewayEui, devAddr)
+<<<<<<< HEAD
 	key := []byte{0x10, 0x0F, 0x0E, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}
+=======
+	key := []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+>>>>>>> 4d9689344ad025c693150e920e11580f50b5d353
 	return key, nil
 }
